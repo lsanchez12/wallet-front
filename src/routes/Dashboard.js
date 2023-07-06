@@ -9,15 +9,18 @@ import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
 import http from "../config/axios";
 import { formatCurrency } from "../utils/";
-import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setWallet, setBalance } from "../services/slices/walletSlice";
+import { Navigate } from "react-router-dom";
 
 import CardContent from "@mui/material/CardContent";
 import Divider from "@mui/material/Divider";
 import Fab from "@mui/material/Fab";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+
+//Dialog
+import FormChargeWallet from "./ChargeWallet";
 
 const stringToColor = (string) => {
   let hash = 0;
@@ -54,11 +57,20 @@ export default function Dashboard() {
   const balance = useSelector((state) => state.wallet.balance);
 
   const [toggleView, setToggleView] = useState(false);
+  const [openChargeModal, setOpenChargeModal] = useState(false);
 
   const dispatch = useDispatch();
 
   const handleToggleButton = () => {
     setToggleView(!toggleView);
+  };
+
+  const handleOpenChargeModal = () => {
+    setOpenChargeModal(true);
+  };
+
+  const handleCloseChargeModal = () => {
+    setOpenChargeModal(false);
   };
 
   const getWallet = async () => {
@@ -90,6 +102,9 @@ export default function Dashboard() {
     if (toggleView) getBalance();
   }, [toggleView]);
 
+  if (!user) {
+    return <Navigate to="/login" replace={true} />;
+  }
   return (
     <>
       <Container maxWidth="sm" component="main" sx={{ pt: 8, pb: 6 }}>
@@ -155,10 +170,16 @@ export default function Dashboard() {
           </CardContent>
           <Divider />
           <CardActions>
-            <Button fullWidth>Charge</Button>
+            <Button fullWidth onClick={handleOpenChargeModal}>
+              Charge
+            </Button>
           </CardActions>
         </Card>
       </Container>
+      <FormChargeWallet
+        open={openChargeModal}
+        handleClose={handleCloseChargeModal}
+      />
     </>
   );
 }
