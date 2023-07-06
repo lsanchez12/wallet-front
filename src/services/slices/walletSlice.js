@@ -1,26 +1,24 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  wallet: {},
+  wallet: null,
+  balance: null,
 };
 
 export const walletSlice = createSlice({
   name: "wallet",
   initialState,
   reducers: {
-    increment: (state) => {
-      state.value += 1;
+    setWallet: (state, action) => {
+      state.wallet = action.payload.wallet_uuid;
     },
-    decrement: (state) => {
-      state.value -= 1;
-    },
-    incrementByAmount: (state, action) => {
-      state.value += action.payload;
+    setBalance: (state, action) => {
+      state.balance = action.payload.balance;
     },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { increment, decrement, incrementByAmount } = walletSlice.actions;
+export const { setBalance, setWallet } = walletSlice.actions;
 
 export default walletSlice.reducer;

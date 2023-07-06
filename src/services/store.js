@@ -14,7 +14,7 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   user: userSlice,
-  notes: walletSlice,
+  wallet: walletSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
