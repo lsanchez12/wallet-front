@@ -39,6 +39,12 @@ const validate = (values) => {
     errors.password = "The length must be greater than or equal to 8";
   }
 
+  if (!values.password_confirmation) {
+    errors.password_confirmation = "Required";
+  } else if (values.password_confirmation != values.password) {
+    errors.password_confirmation = "Password does match";
+  }
+
   if (!values.email) {
     errors.email = "Required";
   } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
@@ -54,30 +60,33 @@ const SignUp = () => {
   const formik = useFormik({
     initialValues: {
       email: "",
+      document: "",
+      first_name: "",
+      last_name: "",
+      phone_number: "",
       password: "",
+      password_confirmation: "",
     },
     validate,
     onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
+      signUp(values);
     },
   });
 
-  // const login = async () => {
-  //   await http.get("/sanctum/csrf-cookie");
-  //   http
-  //     .post("/api/login", {
-  //       email,
-  //       password,
-  //     })
-  //     .then((response) => {
-  //       setLoged(true);
-  //     })
-  //     .catch((error) => {
-  //       console.error(error);
-  //     });
-  // };
+  const signUp = async (values) => {
+    http
+      .post("/api/user", {
+        ...values,
+      })
+      .then((response) => {
+        setLoged(true);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
   if (loged) {
-    return <Navigate to="/dashboard" replace={true} />;
+    return <Navigate to="/login" replace={true} />;
   }
   return (
     <Container component="main" maxWidth="xs">
@@ -179,13 +188,26 @@ const SignUp = () => {
             error={!!formik.errors.password}
             helperText={formik.errors.password}
           />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="password_confirmation"
+            label="Password confirmation"
+            id="password_confirmation"
+            type="password"
+            onChange={formik.handleChange}
+            value={formik.values.password_confirmation}
+            error={!!formik.errors.password_confirmation}
+            helperText={formik.errors.password_confirmation}
+          />
           <Button
             type="submit"
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
           >
-            Sign In
+            Sign Up
           </Button>
         </Box>
       </Box>

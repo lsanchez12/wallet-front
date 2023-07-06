@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
@@ -7,6 +7,8 @@ import Container from "@mui/material/Container";
 import http from "../config/axios";
 import { Navigate } from "react-router-dom";
 import { useFormik } from "formik";
+import { useSelector, useDispatch } from "react-redux";
+import { setUser } from "../services/slices/userSlice";
 
 const validate = (values) => {
   const errors = {};
@@ -27,8 +29,8 @@ const validate = (values) => {
 };
 
 const Login = () => {
-  const [loged, setLoged] = useState(false);
-
+  const user = useSelector((state) => state.user.user);
+  const dispatch = useDispatch();
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -36,26 +38,24 @@ const Login = () => {
     },
     validate,
     onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
+      login(values);
     },
   });
 
-  // const login = async () => {
-  //   await http.get("/sanctum/csrf-cookie");
-  //   http
-  //     .post("/api/login", {
-  //       email,
-  //       password,
-  //     })
-  //     .then((response) => {
-  //       setLoged(true);
-  //     })
-  //     .catch((error) => {
-  //       console.error(error);
-  //     });
-  // };
-  if (loged) {
-    return <Navigate to="/dashboard" replace={true} />;
+  const login = async (values) => {
+    http
+      .post("/api/login", {
+        ...values,
+      })
+      .then((response) => {
+        dispatch(setUser(response.data.data));
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+  if (user) {
+    return <Navigate to="/" replace={true} />;
   }
   return (
     <Container component="main" maxWidth="xs">

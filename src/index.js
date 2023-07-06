@@ -2,7 +2,6 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
-import { store } from "./services/store";
 import { Provider } from "react-redux";
 import CssBaseline from "@mui/material/CssBaseline";
 import Login from "./routes/Login";
@@ -10,14 +9,21 @@ import SignUp from "./routes/SignUp";
 import Dashboard from "./routes/Dashboard";
 import Error404 from "./routes/Error404";
 
+import { persistor, store } from "./services/store";
+import { PersistGate } from "redux-persist/integration/react";
+
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Login />,
+    element: <Dashboard />,
     errorElement: <Error404 />,
   },
   {
-    path: "/sign-up",
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/signUp",
     element: <SignUp />,
   },
 ]);
@@ -26,8 +32,10 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <CssBaseline />
-      <RouterProvider router={router} />
+      <PersistGate loading={null} persistor={persistor}>
+        <CssBaseline />
+        <RouterProvider router={router} />
+      </PersistGate>
     </Provider>
   </React.StrictMode>
 );
