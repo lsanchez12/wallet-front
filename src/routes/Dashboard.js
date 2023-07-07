@@ -62,7 +62,6 @@ export default function Dashboard() {
   const user = useSelector((state) => state.user.user);
   const wallet = useSelector((state) => state.wallet.wallet);
   const balance = useSelector((state) => state.wallet.balance);
-  const transaction = useSelector((state) => state.transaction.transaction);
 
   const [toggleView, setToggleView] = useState(false);
   const [openChargeModal, setOpenChargeModal] = useState(false);
@@ -118,8 +117,10 @@ export default function Dashboard() {
       });
   };
   useEffect(() => {
-    getWallet();
-    getTransaction();
+    if (user) {
+      getWallet();
+      getTransaction();
+    }
   }, []);
 
   useEffect(() => {
@@ -131,7 +132,7 @@ export default function Dashboard() {
   }
   return (
     <>
-      <Container maxWidth="sm" component="main" sx={{ pt: 8, pb: 6 }}>
+      <Container maxWidth="md" component="main" sx={{ pt: 8, pb: 6 }}>
         <Card sx={{ minWidth: 300 }}>
           <CardContent>
             <Grid container spacing={1}>
@@ -202,7 +203,7 @@ export default function Dashboard() {
           </CardActions>
         </Card>
       </Container>
-      <Container maxWidth="md" component="main">
+      <Container maxWidth="lg" component="main">
         <Grid container spacing={5} alignItems="flex-end">
           <Grid item xs={12} sm={12} md={12}>
             <Card>

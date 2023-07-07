@@ -5,9 +5,10 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import http from "../config/axios";
-import { Navigate } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 import { useFormik } from "formik";
 import { useSelector, useDispatch } from "react-redux";
+import { customToast } from "../utils/";
 import { setUser } from "../services/slices/userSlice";
 
 const validate = (values) => {
@@ -48,10 +49,16 @@ const Login = () => {
         ...values,
       })
       .then((response) => {
-        dispatch(setUser(response.data.data));
+        if (!response.data.success) {
+          customToast("Error", response.data.message);
+        } else {
+          customToast("Success", response.data.message);
+          dispatch(setUser(response.data.data));
+        }
       })
       .catch((error) => {
         console.error(error);
+        customToast("Error", error.response.data.message);
       });
   };
   if (user) {
@@ -112,6 +119,16 @@ const Login = () => {
           >
             Sign In
           </Button>
+          <Link to={"/signUp"}>
+            <Button
+              color="secondary"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Sign Up
+            </Button>
+          </Link>
         </Box>
       </Box>
     </Container>

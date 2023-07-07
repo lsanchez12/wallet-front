@@ -7,6 +7,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import { customToast } from "../../utils";
 import http from "../../config/axios";
 import { useFormik } from "formik";
 import { useSelector } from "react-redux";
@@ -37,9 +38,12 @@ export default function AddTransaction({ open, handleClose, callbackCreated }) {
       const { data } = await addTransaction(values);
       if (data.success) {
         formik.resetForm();
+        callbackCreated();
+        handleClose();
+        customToast("Success", data.message);
+      } else {
+        customToast("Error", data.message);
       }
-      callbackCreated();
-      handleClose();
     },
   });
 

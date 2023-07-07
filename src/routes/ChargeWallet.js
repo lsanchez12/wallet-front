@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -11,6 +11,7 @@ import http from "../config/axios";
 import { useFormik } from "formik";
 import { useSelector, useDispatch } from "react-redux";
 import { chargeBalance } from "../services/slices/walletSlice";
+import { customToast } from "../utils";
 
 const validate = (values) => {
   const errors = {};
@@ -37,11 +38,14 @@ export default function ChargeWallet({ open, handleClose }) {
     validate,
     onSubmit: async (values, helpers) => {
       const { data } = await chargeWallet(values);
-      dispatch(chargeBalance(values.amount));
       if (data.success) {
+        dispatch(chargeBalance(values.amount));
         formik.resetForm();
+        handleClose();
+        customToast("Success", data.message);
+      } else {
+        customToast("Error", data.message);
       }
-      handleClose();
     },
   });
 

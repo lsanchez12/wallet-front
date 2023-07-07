@@ -9,7 +9,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Typography from "@mui/material/Typography";
 import http from "../../config/axios";
-import {formatCurrency} from "../../utils"
+import { formatCurrency, customToast } from "../../utils";
 import { useFormik } from "formik";
 import { useSelector, useDispatch } from "react-redux";
 import { debitBalance } from "../../services/slices/walletSlice";
@@ -21,12 +21,18 @@ const validate = (values) => {
     errors.token = "Required";
   } else if (values.token.toString().length < 6) {
     errors.token = "The length must be equal to 6";
-  } 
+  }
 
   return errors;
 };
 
-export default function Payment({ open, handleClose, transactionUuid, total, callbackRefresh }) {
+export default function Payment({
+  open,
+  handleClose,
+  transactionUuid,
+  total,
+  callbackRefresh,
+}) {
   const balance = useSelector((state) => state.wallet.balance);
   const dispatch = useDispatch();
   const formik = useFormik({
@@ -35,18 +41,20 @@ export default function Payment({ open, handleClose, transactionUuid, total, cal
     },
     validate,
     onSubmit: async (values, helpers) => {
-      console.info(values);
-      const { data } = await chargeWallet(values);
-      dispatch(debitBalance(total));
+      const { data } = await paymentTransaction(values);
       if (data.success) {
+        customToast("Success");
+        dispatch(debitBalance(total));
         formik.resetForm();
+        callbackRefresh();
+        handleClose();
+      } else {
+        customToast("Error", data.message);
       }
-      callbackRefresh();
-      handleClose();
     },
   });
 
-  const chargeWallet = async (values) => {
+  const paymentTransaction = async (values) => {
     return http.post(`/api/transaction/${transactionUuid}/payment`, {
       ...values,
     });
@@ -59,10 +67,20 @@ export default function Payment({ open, handleClose, transactionUuid, total, cal
         <DialogContent>
           <DialogContentText>
             Enter the token that was sent by email
-            <Typography variant="h7" component="div" color="text.primary" gutterBottom>
+            <Typography
+              variant="h7"
+              component="div"
+              color="text.primary"
+              gutterBottom
+            >
               {`Total: ${formatCurrency(total)}`}
             </Typography>
-            <Typography variant="h7" component="div" color="text.primary" gutterBottom>
+            <Typography
+              variant="h7"
+              component="div"
+              color="text.primary"
+              gutterBottom
+            >
               {`Amount avaible: ${formatCurrency(balance)}`}
             </Typography>
           </DialogContentText>

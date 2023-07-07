@@ -5,8 +5,10 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import http from "../config/axios";
-import { Navigate } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { useFormik } from "formik";
+import { customToast } from "../utils/";
 
 const validate = (values) => {
   const errors = {};
@@ -55,7 +57,8 @@ const validate = (values) => {
 };
 
 const SignUp = () => {
-  const [loged, setLoged] = useState(false);
+  const user = useSelector((state) => state.user.user);
+  const [register, setRegister] = useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -79,15 +82,25 @@ const SignUp = () => {
         ...values,
       })
       .then((response) => {
-        setLoged(true);
+        if (response.data.success) {
+          setRegister(true);
+          customToast("Success", response.data.message);
+        } else {
+          customToast("Error", response.data.message);
+        }
       })
       .catch((error) => {
-        console.error(error);
+        console.error(error.response.data.message);
+        customToast("Error", error.response.data.message);
       });
   };
-  if (loged) {
+  if (user) {
+    return <Navigate to="/" replace={true} />;
+  }
+  if (register) {
     return <Navigate to="/login" replace={true} />;
   }
+
   return (
     <Container component="main" maxWidth="xs">
       <Box
@@ -209,6 +222,16 @@ const SignUp = () => {
           >
             Sign Up
           </Button>
+          <Link to={"/login"}>
+            <Button
+              color="secondary"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Login
+            </Button>
+          </Link>
         </Box>
       </Box>
     </Container>
