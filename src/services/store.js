@@ -6,6 +6,7 @@ import thunk from "redux-thunk";
 
 import userSlice from "./slices/userSlice";
 import walletSlice from "./slices/walletSlice";
+import transactionSlice from "./slices/transactionSlice";
 
 const persistConfig = {
   key: "root",
@@ -15,6 +16,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
   user: userSlice,
   wallet: walletSlice,
+  transaction: transactionSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -18,10 +18,13 @@ export const walletSlice = createSlice({
     chargeBalance: (state,action) => {
       state.balance = parseFloat(state.balance) + parseFloat(action.payload);
     },
+    debitBalance: (state,action) => {
+      state.balance = parseFloat(state.balance) - parseFloat(action.payload);
+    }
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { setBalance, setWallet, chargeBalance } = walletSlice.actions;
+export const { setBalance, setWallet, chargeBalance, debitBalance } = walletSlice.actions;
 
 export default walletSlice.reducer;

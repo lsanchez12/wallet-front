@@ -11,6 +11,7 @@ import http from "../config/axios";
 import { formatCurrency } from "../utils/";
 import { useSelector, useDispatch } from "react-redux";
 import { setWallet, setBalance } from "../services/slices/walletSlice";
+import { setTransaction } from "../services/slices/transactionSlice";
 import { Navigate } from "react-router-dom";
 
 import CardContent from "@mui/material/CardContent";
@@ -18,9 +19,15 @@ import Divider from "@mui/material/Divider";
 import Fab from "@mui/material/Fab";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import Tooltip from "@mui/material/Tooltip";
 
 //Dialog
 import FormChargeWallet from "./ChargeWallet";
+import FormTransaction from "./Transaction/AddTransaction";
+import TransactionList from "./Transaction/Transactions";
+
+//FAB
+import AddIcon from "@mui/icons-material/Add";
 
 const stringToColor = (string) => {
   let hash = 0;
@@ -55,11 +62,16 @@ export default function Dashboard() {
   const user = useSelector((state) => state.user.user);
   const wallet = useSelector((state) => state.wallet.wallet);
   const balance = useSelector((state) => state.wallet.balance);
+  const transaction = useSelector((state) => state.transaction.transaction);
 
   const [toggleView, setToggleView] = useState(false);
   const [openChargeModal, setOpenChargeModal] = useState(false);
+  const [openCreateTransaction, setOpenCreateTransaction] = useState(false);
 
   const dispatch = useDispatch();
+
+  const handleOpenCreateTransaction = () => setOpenCreateTransaction(true);
+  const handleCloseCreateTransaction = () => setOpenCreateTransaction(false);
 
   const handleToggleButton = () => {
     setToggleView(!toggleView);
@@ -94,8 +106,20 @@ export default function Dashboard() {
         console.error(error);
       });
   };
+
+  const getTransaction = async () => {
+    http
+      .get(`/api/transaction/${user.id}`)
+      .then((response) => {
+        dispatch(setTransaction(response.data.data));
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
   useEffect(() => {
     getWallet();
+    getTransaction();
   }, []);
 
   useEffect(() => {
@@ -140,14 +164,16 @@ export default function Dashboard() {
                 </Typography>
               </Grid>
               <Grid item xs={1}>
-                <Fab
-                  color={toggleView ? "error" : "success"}
-                  size="small"
-                  aria-label="add"
-                  onClick={handleToggleButton}
-                >
-                  {toggleView ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                </Fab>
+                <Tooltip title={toggleView ? "Hide balance" : "View balance"}>
+                  <Fab
+                    color={toggleView ? "error" : "success"}
+                    size="small"
+                    aria-label="add"
+                    onClick={handleToggleButton}
+                  >
+                    {toggleView ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                  </Fab>
+                </Tooltip>
               </Grid>
             </Grid>
             <Divider />
@@ -162,7 +188,7 @@ export default function Dashboard() {
                   {`${
                     toggleView
                       ? formatCurrency(balance ? balance : 0)
-                      : "$ ***,**"
+                      : "$ **.***,**"
                   }`}
                 </Typography>
               </Grid>
@@ -176,10 +202,47 @@ export default function Dashboard() {
           </CardActions>
         </Card>
       </Container>
+      <Container maxWidth="md" component="main">
+        <Grid container spacing={5} alignItems="flex-end">
+          <Grid item xs={12} sm={12} md={12}>
+            <Card>
+              <CardHeader
+                title={"Transactions"}
+                titleTypographyProps={{ align: "center" }}
+                sx={{
+                  backgroundColor: (theme) => theme.palette.grey[200],
+                }}
+              />
+              <CardContent>
+                <TransactionList callbackRefresh={getTransaction} />
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      </Container>
       <FormChargeWallet
         open={openChargeModal}
         handleClose={handleCloseChargeModal}
       />
+      <FormTransaction
+        open={openCreateTransaction}
+        callbackCreated={getTransaction}
+        handleClose={handleCloseCreateTransaction}
+      />
+      <Tooltip title="Add transaction">
+        <Fab
+          color="primary"
+          aria-label="add"
+          sx={{
+            position: "absolute",
+            bottom: 16,
+            right: 16,
+          }}
+          onClick={handleOpenCreateTransaction}
+        >
+          <AddIcon />
+        </Fab>
+      </Tooltip>
     </>
   );
 }
