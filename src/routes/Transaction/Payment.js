@@ -19,7 +19,7 @@ const validate = (values) => {
 
   if (!values.token) {
     errors.token = "Required";
-  } else if (values.token.toString().length < 6) {
+  } else if (values.token.toString().length != 6) {
     errors.token = "The length must be equal to 6";
   }
 
